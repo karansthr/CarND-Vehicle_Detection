@@ -1,15 +1,12 @@
 [//]: # (Image References)
 
-[image1]: ./writeup-images/image_1.png "Original Image"
-[image2]: ./writeup-images/image_2.png "Undistorted"
-[image3]: ./writeup-images/image_3.png "Perspective Transformed Image"
-[image4]: ./writeup-images/image_4.png "L Channel"
-[image5]: ./writeup-images/image_5.png "S Channel"
-[image6]: ./writeup-images/image_6.png "Combine Channel"
-[image7]: ./writeup-images/image_7.png "Polynomial Fitted"
-[image8]: ./examples/polynomial-drawn.png "Polynomial drawn"
-[image9]: ./examples/highlighted-lane.png "Highlighted Lane"
-[image10]: ./examples/combined-image.png "Combined Image"
+[image1]: ./writeup-images/image_1.png "Image 1"
+[image2]: ./writeup-images/image_2.png "Image 2"
+[image3]: ./writeup-images/image_3.png "Image 3"
+[image4]: ./writeup-images/image_4.png "Image 4"
+[image5]: ./writeup-images/image_5.png "Image 5"
+[image6]: ./writeup-images/image_6.png "Image 6"
+[image7]: ./writeup-images/image_7.png "Image 7"
 [video1]: ./project_video_out.mp4 "Video"
 
 # Vehicle Detection Project
@@ -39,7 +36,7 @@ svc.fit(X_train, y_train)
 I got the accuracy of 98.65%
 
 ---
-Sliding Window Search
+### Sliding Window Search
 ---
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search. How did you decide what scales to search and how much to overlap windows?
 
@@ -68,3 +65,40 @@ Labels are assigned by using the function `scipy.ndimage.measurements.label()`
 
 To help optimize the performance of my classifier, I split the `pix_per_cell` from `16` to `8`. I came to conclusion tha the accuracy gained from this was not significant enough to justify for the time it takes to run my classifier.
 
+---
+### Video Implementation
+---
+#### 1. Provide a link to your final video output. Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
+
+The video file is in this repository. The name of the file is `project_video_out.mp4`
+
+#### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
+
+The way I combined the overlapping boxes are found in my function called `add_heat`. 
+```
+def add_heat(heatmap, bbox_list):
+    # Iterate through list of bboxes
+    for box in bbox_list:
+        # Add += 1 for all pixels inside each bbox
+        # Assuming each "box" takes the form ((x1, y1), (x2, y2))
+        heatmap[box[0][1]:box[1][1], box[0][0]:box[1][0]] += 1
+    return heatmap
+```
+
+And once we finish adding the heatmap, the way lessened the false positive is by adding the threshold to heatmap. The way that is done is by my function called `apply_threshold`.
+```
+def apply_threshold(heatmap, threshold):
+    # Zero out pixels below the threshold
+    heatmap[heatmap <= threshold] = 0
+    # Return thresholded map
+    return heatmap
+``` 
+
+---
+### Discussion
+---
+#### 1. Briefly discuss any problems / issues you faced in your implementation of this project. Where will your pipeline likely fail? What could you do to make it more robust?
+
+I found out the image pipeline fails in the video when the car is going over a large bump. The reason it fails is because when it goes over the bump, the video jumps and messes up the masking we have for the sliding window. We can fix that by making the sliding windows `ystart` and `yend` larger, but thought the trade off was not worth the time it takes to compute extra windows.
+
+Also our classifier has an accuracy of 98.65% which looks good but actaully it returns about 13 false positives in a frame. We have to hope that the thresholding of the heatmap catches all the false positives. 
