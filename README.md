@@ -2,7 +2,7 @@
 
 [image1]: ./writeup-images/image_1.png "Original Image"
 [image2]: ./writeup-images/image_2.png "Undistorted"
-[image3]: ./writeup-images/image_3.jpg "Perspective Transformed Image"
+[image3]: ./writeup-images/image_3.png "Perspective Transformed Image"
 [image4]: ./writeup-images/image_4.png "L Channel"
 [image5]: ./writeup-images/image_5.png "S Channel"
 [image6]: ./writeup-images/image_6.png "Combine Channel"
