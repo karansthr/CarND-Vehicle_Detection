@@ -84,6 +84,24 @@ def add_heat(heatmap, bbox_list):
         heatmap[box[0][1]:box[1][1], box[0][0]:box[1][0]] += 1
     return heatmap
 ```
+I iterated the `add_heat` function by importing `deque` from `collections` to push array of rectangles for the last 8 frames. Than I added the heat of the last eight frames. This significantly reduced false positives and also reduced the jitter of the rectangles in the video.
+```
+def add_heat_deque(heatmap, rectangles_deque):
+    # Iterate through list of bboxes
+    for bbox_list in rectangles_deque:
+        for box in bbox_list:
+            # Add += 1 for all pixels inside each bbox
+            # Assuming each "box" takes the form ((x1, y1), (x2, y2))
+            heatmap[box[0][1]:box[1][1], box[0][0]:box[1][0]] += 1
+    # Return updated heatmap
+    return heatmap
+```
+```
+rectangles_deque = deque(maxlen=8)
+```
+```
+rectangles_deque.append(rectangles)
+```
 
 And once we finish adding the heatmap, the way lessened the false positive is by adding the threshold to heatmap. The way that is done is by my function called `apply_threshold`.
 ```
